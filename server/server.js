@@ -3,8 +3,10 @@ import mongoose from 'mongoose';
 // import cors from 'cors'
 import { Todo } from './model/Todo.js'
 // import { todos, addTodo, deleteTodo, updateTodo } from "./model/TodoModel.js"
+import 'dotenv/config.js'
 
-mongoose.connect('mongodb://localhost:27017/my_todo')
+
+mongoose.connect(process.env.DB)
 
 const app = express()
 const PORT = process.env.Port || '3008';
@@ -18,8 +20,12 @@ app.get("/api/todos", async (req, res) => {
 })
 
 app.post("/api/todos", async (req, res) => {
-    const newTodo = await Todo.create(req.body)
-    res.send(newTodo)
+    try {
+        const newTodo = await Todo.create(req.body)
+        res.send({ newTodo: newTodo, errors: null })
+    } catch (error) {
+        res.send({ newEntry: null, errors: error.errors })
+    }
 })
 
 app.delete("/api/todos/:id", async (req, res) => {

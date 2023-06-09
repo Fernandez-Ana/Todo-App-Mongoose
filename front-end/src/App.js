@@ -5,6 +5,7 @@ import axios from 'axios';
 function App() {
 
   const [todos, setTodos] = useState([]);
+  const [errors, setErrors] = useState({})
 
   useEffect(() => {
     axios.get("/api/todos").then(({ data }) => setTodos(data));
@@ -19,24 +20,35 @@ function App() {
 
   return (
     <div className="App">
-
+      <h1>Todo List</h1>
       <form onSubmit={async (e) => {
         e.preventDefault();
         const text = e.currentTarget[0].value;
-        // const complete = e.currentTarget[1].value
         const resp = await axios.post('/api/todos', { text })
         setTodos((prevState) => [...prevState, resp.data])
+
+        if (resp.data.newEntry) {
+          setTodos((prevState) => [...prevState, resp.data.newEntry])
+        }
+        if (resp.data.errors) {
+          setErrors(resp.data.errors)
+        }
       }}>
 
         <div>
           <input type="text" name="text" id="text" />
+          <small>{errors?.text?.message}</small>
           <button>Add Todo</button>
         </div>
       </form>
 
       {todos.map((ele, index) => <div key={ele._id}>
         <label>
-          {/* <input type="checkbox" name="checkbox" id="checkbox" /> */}
+          <input
+            type="checkbox"
+          // onChange={() => updateTodo(todo._id)}
+          // defaultChecked={todo.completed}
+          />
           <p>{ele.text}</p>
         </label>
         <button onClick={() => { deleteTodo(ele._id, index) }}>Delete</button>
